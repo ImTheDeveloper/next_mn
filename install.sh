@@ -250,6 +250,7 @@ fi
 function prepare_system() {
 echo -e "Prepare the system to install ${GREEN}$COIN_NAME${NC} master node."
 apt-get update >/dev/null 2>&1
+echo -e "Installing required packages.${NC}"
 apt-get install -y wget curl ufw binutils net-tools unzip git >/dev/null 2>&1
 clear
 echo -e "Checking if swap space is needed."
