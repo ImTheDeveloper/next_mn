@@ -44,9 +44,9 @@ function compile_node() {
   wget --progress=bar:force $COIN_REPO 2>&1 | progressfilt
   compile_error
   COIN_ZIP=$(echo $COIN_REPO | awk -F'/' '{print $NF}')
-  unzip $COIN_ZIP
+  unzip $COIN_ZIP >/dev/null 2>&1
   compile_error
-  rm -f $COIN_ZIP
+  rm -f $COIN_ZIP >/dev/null 2>&1
   chmod +x $COIN_DAEMON $COIN_CLI
   cp $COIN_DAEMON $COIN_CLI $NEXTCOINFOLDER
   cd -
@@ -132,7 +132,6 @@ fi
 
 
 function create_config() {
-  mkdir $NEXTCOINFOLDER
   RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
   RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
   cat << EOF > $NEXTCOINFOLDER/$CONFIG_FILE
@@ -151,7 +150,7 @@ function create_key() {
   echo -e "Enter your ${RED}$COIN_NAME Masternode Private Key${NC}.\nLeave it blank to generate a new ${RED}$COIN_NAME Masternode Private Key${NC} for you:"
   read -e COINKEY
   if [[ -z "$COINKEY" ]]; then
-  $NEXTCOINFOLDER/$COIN_DAEMON -daemon
+  $NEXTCOINFOLDER/$COIN_DAEMON -daemon >/dev/null 2>&1
   sleep 30
   if [ -z "$(ps axo cmd:100 | grep $COIN_DAEMON)" ]; then
    echo -e "${RED}$COIN_NAME server couldn not start. Check /var/log/syslog for errors.{$NC}"
@@ -164,7 +163,7 @@ function create_key() {
     sleep 30
     COINKEY=$($NEXTCOINFOLDER/$COIN_CLI masternode genkey)
   fi
-  $NEXTCOINFOLDER/$COIN_CLI stop
+  $NEXTCOINFOLDER/$COIN_CLI stop >/dev/null 2>&1
 fi
 
 }
@@ -174,7 +173,6 @@ function update_config() {
   cat << EOF >> $NEXTCOINFOLDER/$CONFIG_FILE
 logintimestamps=1
 maxconnections=64
-#bind=$NODEIP
 testnet=0
 debug=0
 masternode=1
@@ -186,10 +184,10 @@ EOF
 
 function enable_firewall() {
   echo -e "Installing and setting up firewall to allow ingress on port ${GREEN}$COIN_PORT${NC}"
-  ufw allow ssh
-  ufw allow $COIN_PORT
-  ufw default allow outgoing
-  echo "y" | ufw enable
+  ufw allow ssh >/dev/null 2>&1
+  ufw allow $COIN_PORT >/dev/null 2>&1
+  ufw default allow outgoing >/dev/null 2>&1
+  echo "y" | ufw enable >/dev/null 2>&1
 }
 
 function get_ip() {
@@ -251,8 +249,8 @@ fi
 
 function prepare_system() {
 echo -e "Prepare the system to install ${GREEN}$COIN_NAME${NC} master node."
-apt-get update
-apt-get install -y wget curl ufw binutils net-tools unzip git
+apt-get update >/dev/null 2>&1
+apt-get install -y wget curl ufw binutils net-tools unzip git >/dev/null 2>&1
 clear
 echo -e "Checking if swap space is needed."
 PHYMEM=$(free -g|awk '/^Mem:/{print $2}')
@@ -260,10 +258,10 @@ SWAP=$(swapon -s)
 if [[ "$PHYMEM" -lt "2" && -z "$SWAP" ]];
   then
     echo -e "${GREEN}Server is running with less than 2G of RAM, creating 2G swap file.${NC}"
-    dd if=/dev/zero of=/swapfile bs=1024 count=2M
-    chmod 600 /swapfile
-    mkswap /swapfile
-    swapon -a /swapfile
+    dd if=/dev/zero of=/swapfile bs=1024 count=2M >/dev/null 2>&1
+    chmod 600 /swapfile >/dev/null 2>&1
+    mkswap /swapfile >/dev/null 2>&1
+    swapon -a /swapfile >/dev/null 2>&1
 else
   echo -e "${GREEN}The server running with at least 2G of RAM, or SWAP exists.${NC}"
 fi
@@ -285,7 +283,6 @@ function important_information() {
  echo -e "https://github.com/ImTheDeveloper/next_mn/blob/master/README.md"
  echo -e "Produced by @munkee - any questions catch me on telegram!${NC}"
  echo -e "================================================================================"
-
 }
 
 
