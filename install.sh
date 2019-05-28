@@ -38,7 +38,7 @@ progressfilt () {
 }
 
 function compile_node() {
-  echo -e "Prepare to download $COIN_NAME"
+  echo -e "Prepare to download $COIN_NAME${NC}"
   TMP_FOLDER=$(mktemp -d)
   cd $TMP_FOLDER
   wget -q $COIN_REPO >/dev/null 2>&1
@@ -51,6 +51,7 @@ function compile_node() {
   cp $COIN_DAEMON $COIN_CLI $NEXTCOINFOLDER
   cd - >/dev/null 2>&1
   rm -rf $TMP_FOLDER >/dev/null 2>&1
+  echo -e "Node files downloaded and setup.${NC}"
 }
 
 function configure_systemd() {
@@ -153,7 +154,7 @@ function create_key() {
   $NEXTCOINFOLDER/$COIN_DAEMON -daemon >/dev/null 2>&1
   sleep 30
   if [ -z "$(ps axo cmd:100 | grep $COIN_DAEMON)" ]; then
-   echo -e "${RED}$COIN_NAME server couldn not start. Check /var/log/syslog for errors.{$NC}"
+   echo -e "${RED}$COIN_NAME server couldn not start. Check /var/log/syslog for errors.${NC}"
    exit 1
   fi
   COINKEY=$($NEXTCOINFOLDER/$COIN_CLI masternode genkey)
