@@ -168,7 +168,7 @@ function create_key() {
   fi
   $NEXTCOINFOLDER/$COIN_CLI stop >/dev/null 2>&1
 fi
-
+clear
 }
 
 function update_config() {
@@ -302,6 +302,7 @@ EOF
    echo  "*/2 * * * * cd $NEXTCOINFOLDER/sentinel && ./venv/bin/python bin/sentinel.py >> $NEXTCOINFOLDER/sentinel.log 2>&1" > $NEXTCOINFOLDER/$COIN_NAME.cron
    crontab $NEXTCOINFOLDER/$COIN_NAME.cron
    rm $NEXTCOINFOLDER/$COIN_NAME.cron >/dev/null 2>&1
+   clear
 }
 
 
