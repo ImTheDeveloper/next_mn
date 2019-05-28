@@ -41,7 +41,7 @@ function compile_node() {
   echo -e "Prepare to download $COIN_NAME"
   TMP_FOLDER=$(mktemp -d)
   cd $TMP_FOLDER
-  wget --progress=bar:force $COIN_REPO 2>&1 | progressfilt
+  wget -q $COIN_REPO >/dev/null 2>&1
   compile_error
   COIN_ZIP=$(echo $COIN_REPO | awk -F'/' '{print $NF}')
   unzip $COIN_ZIP >/dev/null 2>&1
@@ -49,8 +49,8 @@ function compile_node() {
   rm -f $COIN_ZIP >/dev/null 2>&1
   chmod +x $COIN_DAEMON $COIN_CLI
   cp $COIN_DAEMON $COIN_CLI $NEXTCOINFOLDER
-  cd -
-  rm -rf $TMP_FOLDER
+  cd - >/dev/null 2>&1
+  rm -rf $TMP_FOLDER >/dev/null 2>&1
 }
 
 function configure_systemd() {
@@ -252,7 +252,6 @@ echo -e "Prepare the system to install ${GREEN}$COIN_NAME${NC} master node."
 apt-get update >/dev/null 2>&1
 echo -e "Installing required packages.${NC}"
 apt-get install -y wget curl ufw binutils net-tools unzip git >/dev/null 2>&1
-clear
 echo -e "Checking if swap space is needed."
 PHYMEM=$(free -g|awk '/^Mem:/{print $2}')
 SWAP=$(swapon -s)
