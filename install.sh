@@ -52,6 +52,7 @@ function compile_node() {
   cd - >/dev/null 2>&1
   rm -rf $TMP_FOLDER >/dev/null 2>&1
   echo -e "Node files downloaded and setup.${NC}"
+  clear
 }
 
 function configure_systemd() {
@@ -78,8 +79,8 @@ EOF
 
   systemctl daemon-reload
   sleep 3
-  systemctl start $COIN_NAME.service
-  systemctl enable $COIN_NAME.service
+  systemctl start $COIN_NAME.service >/dev/null 2>&1
+  systemctl enable $COIN_NAME.service >/dev/null 2>&1
 
   if [[ -z "$(ps axo cmd:100 | egrep $COIN_DAEMON)" ]]; then
     echo -e "${RED}$COIN_NAME is not running${NC}, please investigate. You should start by running the following commands as root:"
@@ -122,9 +123,9 @@ case "\$1" in
    ;;
 esac
 EOF
-chmod +x /etc/init.d/$COIN_NAME
-update-rc.d $COIN_NAME defaults
-/etc/init.d/$COIN_NAME start
+chmod +x /etc/init.d/$COIN_NAME >/dev/null 2>&1
+update-rc.d $COIN_NAME defaults >/dev/null 2>&1
+/etc/init.d/$COIN_NAME start 
 if [ "$?" -gt "0" ]; then
  sleep 5
  /etc/init.d/$COIN_NAME start
@@ -151,6 +152,7 @@ function create_key() {
   echo -e "Enter your ${RED}$COIN_NAME Masternode Private Key${NC}.\nLeave it blank to generate a new ${RED}$COIN_NAME Masternode Private Key${NC} for you:"
   read -e COINKEY
   if [[ -z "$COINKEY" ]]; then
+  echo -e "Please wait whilst we generate your masternode private key. It will be displayed once installation has completed."
   $NEXTCOINFOLDER/$COIN_DAEMON -daemon >/dev/null 2>&1
   sleep 30
   if [ -z "$(ps axo cmd:100 | grep $COIN_DAEMON)" ]; then
@@ -272,23 +274,23 @@ clear
 function important_information() {
  echo
  echo -e "================================================================================"
- echo -e "$COIN_NAME Masternode is up and running listening on port ${RED}$COIN_PORT${NC}."
+ echo -e "${GREEN}$COIN_NAME${NC} Masternode is up and running listening on port ${RED}$COIN_PORT${NC}."
  echo -e "Configuration file is: ${RED}$NEXTCOINFOLDER/$CONFIG_FILE${NC}"
  echo -e "VPS_IP:PORT ${RED}$NODEIP:$COIN_PORT${NC}"
  echo -e "MASTERNODE PRIVATEKEY is: ${RED}$COINKEY${NC}"
  if [[ -n $SENTINEL_REPO  ]]; then
-  echo -e "${RED}Sentinel${NC} is installed in ${RED}$NEXTCOINFOLDER/sentinel${NC}"
+  echo -e "Sentinel is installed in ${RED}$NEXTCOINFOLDER/sentinel${NC}"
   echo -e "Sentinel logs is: ${RED}$NEXTCOINFOLDER/sentinel.log${NC}"
  fi
- echo -e "Useful commands for checking your node can be found in the README here:${NC}"
- echo -e "https://github.com/ImTheDeveloper/next_mn/blob/master/README.md"
+ echo -e "Useful commands for checking your node can be found in the ${GREEN}README${NC} here:"
+ echo -e "${RED}https://github.com/ImTheDeveloper/next_mn/blob/master/README.md${NC}"
  echo -e "Produced by @munkee - any questions catch me on telegram!${NC}"
  echo -e "================================================================================"
 }
 
 
 function install_sentinel() {
-   echo -e "${GREEN}Installing sentinel.${NC}"
+   echo -e "Installing sentinel.${NC}"
    apt-get -y install python-virtualenv virtualenv >/dev/null 2>&1
    git clone $SENTINEL_REPO $NEXTCOINFOLDER/sentinel >/dev/null 2>&1
    cd $NEXTCOINFOLDER/sentinel
