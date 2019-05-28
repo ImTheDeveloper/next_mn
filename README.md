@@ -2,7 +2,7 @@
 
 ## Install
 ```
-wget -N https://raw.githubusercontent.com/ImTheDeveloper/next_mn/master/install.sh
+wget -q https://raw.githubusercontent.com/ImTheDeveloper/next_mn/master/install.sh
 bash install.sh
 ```
 Follow the on-screen instructions.
