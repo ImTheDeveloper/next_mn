@@ -252,7 +252,7 @@ fi
 function prepare_system() {
 echo -e "Prepare the system to install ${GREEN}$COIN_NAME${NC} master node."
 apt-get update
-apt-get install -y wget curl ufw binutils net-tools
+apt-get install -y wget curl ufw binutils net-tools unzip git
 clear
 echo -e "Checking if swap space is needed."
 PHYMEM=$(free -g|awk '/^Mem:/{print $2}')
@@ -275,27 +275,17 @@ function important_information() {
  echo -e "================================================================================"
  echo -e "$COIN_NAME Masternode is up and running listening on port ${RED}$COIN_PORT${NC}."
  echo -e "Configuration file is: ${RED}$NEXTCOINFOLDER/$CONFIG_FILE${NC}"
- if (( $UBUNTU_VERSION == 16 || $UBUNTU_VERSION == 18 )); then
-   echo -e "Start: ${RED}systemctl start $COIN_NAME.service${NC}"
-   echo -e "Stop: ${RED}systemctl stop $COIN_NAME.service${NC}"
-   echo -e "Status: ${RED}systemctl status $COIN_NAME.service${NC}"
- else
-   echo -e "Start: ${RED}/etc/init.d/$COIN_NAME start${NC}"
-   echo -e "Stop: ${RED}/etc/init.d/$COIN_NAME stop${NC}"
-   echo -e "Status: ${RED}/etc/init.d/$COIN_NAME status${NC}"
- fi
  echo -e "VPS_IP:PORT ${RED}$NODEIP:$COIN_PORT${NC}"
  echo -e "MASTERNODE PRIVATEKEY is: ${RED}$COINKEY${NC}"
  if [[ -n $SENTINEL_REPO  ]]; then
   echo -e "${RED}Sentinel${NC} is installed in ${RED}$NEXTCOINFOLDER/sentinel${NC}"
   echo -e "Sentinel logs is: ${RED}$NEXTCOINFOLDER/sentinel.log${NC}"
  fi
- echo -e "Check if $COIN_NAME is running by using the following command:\n${RED}ps -ef | grep $COIN_DAEMON | grep -v grep${NC}"
- echo -e "================================================================================"
- echo -e "Useful commands for checking your node:${NC}"
- echo -e "Wallet status: $NEXTCOINFOLDER/$COIN_CLI getinfo${NC}"
- echo -e "Masternode status: $NEXTCOINFOLDER/$COIN_CLI masternode status${NC}"
+ echo -e "Useful commands for checking your node can be found in the README here:${NC}"
+ echo -e "https://github.com/ImTheDeveloper/next_mn/blob/master/README.md"
  echo -e "Produced by @munkee - any questions catch me on telegram!${NC}"
+ echo -e "================================================================================"
+
 }
 
 
@@ -306,6 +296,9 @@ function install_sentinel() {
    cd $NEXTCOINFOLDER/sentinel
    virtualenv ./venv >/dev/null 2>&1
    ./venv/bin/pip install -r requirements.txt >/dev/null 2>&1
+   cat << EOF > $NEXTCOINFOLDER/sentinel/sentinel.conf
+next_conf=$NEXTCOINFOLDER/$CONFIG_FILE
+EOF
    echo  "*/2 * * * * cd $NEXTCOINFOLDER/sentinel && ./venv/bin/python bin/sentinel.py >> $NEXTCOINFOLDER/sentinel.log 2>&1" > $NEXTCOINFOLDER/$COIN_NAME.cron
    crontab $NEXTCOINFOLDER/$COIN_NAME.cron
    rm $NEXTCOINFOLDER/$COIN_NAME.cron >/dev/null 2>&1
