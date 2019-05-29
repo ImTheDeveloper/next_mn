@@ -22,9 +22,8 @@ cd ~/.next
 
 Also, if you want to check/start/stop **NEXT** daemon for a particular reason e.g. re-install, run one of the following commands as **root**:
 ```
-NEXTCOINUSER=NEXT  #replace NEXT with the username  of the user running the node you want to check
-systemctl status $NEXTCOINUSER #To check the service is running
-systemctl start $NEXTCOINUSER #To start masternode service
-systemctl stop $NEXTCOINUSER #To stop masternode service
-systemctl is-enabled $NEXTCOINUSER #To check masternode service is enabled on boot
+systemctl status NEXT #To check the service is running
+systemctl start NEXT #To start masternode service
+systemctl stop NEXT #To stop masternode service
+systemctl is-enabled NEXT #To check masternode service is enabled on boot
 ```
