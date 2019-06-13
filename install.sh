@@ -8,7 +8,7 @@ COIN_NAME='NEXT'
 COIN_PORT=7077
 RPC_PORT=10001
 SENTINEL_REPO='https://github.com/NextExchange/sentinel.git'
-
+OS_VERSION='U18'
 NODEIP=$(curl -s4 icanhazip.com)
 
 RED='\033[0;31m'
@@ -38,7 +38,7 @@ progressfilt () {
 }
 
 function compile_node() {
-  echo -e "Prepare to download $COIN_NAME${NC}"
+  echo -e "Preparing to download and compile $COIN_NAME${NC} node wallet"
   TMP_FOLDER=$(mktemp -d)
   cd $TMP_FOLDER
   wget -q $COIN_REPO >/dev/null 2>&1
@@ -149,7 +149,7 @@ EOF
 }
 
 function create_key() {
-  echo -e "Enter your ${RED}$COIN_NAME Masternode Private Key${NC}.\nLeave it blank to generate a new ${RED}$COIN_NAME Masternode Private Key${NC} for you:"
+  echo -e "Please provide your ${RED}$COIN_NAME Masternode Private Key generated from your local wallet${NC}.\nLeave blank and hit [ENTER] if you wish for the script to generate a new ${RED}$COIN_NAME Masternode Private Key${NC} for you:"
   read -e COINKEY
   if [[ -z "$COINKEY" ]]; then
   echo -e "Please wait whilst we generate your masternode private key. It will be displayed once installation has completed."
@@ -224,21 +224,25 @@ if [ "$?" -gt "0" ];
 fi
 }
 
-function detect_ubuntu() {
- if [[ $(lsb_release -d) == *18.04* ]]; then
-   UBUNTU_VERSION=18
- elif [[ $(lsb_release -d) == *16.04* ]]; then
-   UBUNTU_VERSION=16
- elif [[ $(lsb_release -d) == *14.04* ]]; then
-   UBUNTU_VERSION=14
+function detect_os() {
+ if lsb_release -d | grep -q 'Ubuntu 18.04'; then
+   OS_VERSION='U18'
+ elif lsb_release -d | grep -q 'Ubuntu 18.10'; then
+   OS_VERSION='U18'
+ elif lsb_release -d | grep -q 'Ubuntu 16.04'; then
+   OS_VERSION='U16'
+ elif lsb_release -d | grep -q 'Ubuntu 14.04'; then
+   OS_VERSION='U14'
+ elif lsb_release -d | grep -q 'Debian'; then
+   OS_VERSION='D'
 else
-   echo -e "${RED}You are not running Ubuntu 14.04, 16.04 or 18.04 Installation is cancelled.${NC}"
+   echo -e "${RED}Script currently only supports Ubuntu 14.04, 16.04, 18.04 or Debian. Installation will need to be carried out manually.${NC}"
    exit 1
 fi
 }
 
 function checks() {
- detect_ubuntu 
+ detect_os 
 if [[ $EUID -ne 0 ]]; then
    echo -e "${RED}$0 must be run as root.${NC}"
    exit 1
@@ -316,7 +320,12 @@ function ask_user() {
     USERPASS=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w12 | head -n1)
     echo "$NEXTCOINUSER:$USERPASS" | chpasswd
   fi
+
+  if (($OS_VERSION == 'D')); then
+    NEXTCOINHOME=$(su - $NEXTCOINUSER bash -c 'echo $HOME')
+  else
     NEXTCOINHOME=$(sudo -H -u $NEXTCOINUSER bash -c 'echo $HOME')
+  fi
     DEFAULTNEXTCOINFOLDER="$NEXTCOINHOME/.next"
     read -p "Configuration folder: " -i $DEFAULTNEXTCOINFOLDER -e NEXTCOINFOLDER
     : ${NEXTCOINFOLDER:=$DEFAULTNEXTCOINFOLDER}
@@ -336,7 +345,7 @@ function setup_node() {
   enable_firewall
   install_sentinel
   important_information
-  if (( $UBUNTU_VERSION == 16 || $UBUNTU_VERSION == 18 )); then
+  if (( $OS_VERSION == 'U16' || $OS_VERSION == 'U18' || $OS_VERSION == 'D' )); then
     configure_systemd
   else
     configure_startup
