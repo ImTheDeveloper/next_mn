@@ -1,5 +1,13 @@
 # NEXT Masternode Install Script
 
+## VPS
+
+Looking for a VPS to host your node?
+
+Vultr is really simple to use and this ref link should give you a discount on your node https://www.vultr.com/?ref=7480918
+
+Select the $5 a month tier and we recommend using ubuntu 18 flavours or Debian. 
+
 ## Install
 ```
 wget -q https://raw.githubusercontent.com/ImTheDeveloper/next_mn/master/install.sh
